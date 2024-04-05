@@ -1,0 +1,87 @@
+---
+# tasks file for install-nginx
+
+    #Update dependencies
+    - name: Apt Update
+      become: yes
+      apt:
+        update_cache: yes
+      when: inventory_hostname == "ubuntu2"
+
+    #SQL INSTALL
+    - name: Installer Mysql et ses dépendencies
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - mysql-server
+        - mysql-client
+        - python3-mysqldb
+        - libmysqlclient-dev
+      become: yes
+      when: inventory_hostname == "ubuntu2"
+
+    #SQL START
+    - name: Démarrer Mysql et activer le service Mysql
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+      when: inventory_hostname == "ubuntu2"
+
+    #SQL MODIFIER MOT DE PASSE ROOT
+    - name: Modifier le mot de passe de root Mysql (fonctionne que la première fois)
+      mysql_user:
+        name: "{{db_root}}"
+        password: "{{db_root_new_pass}}"
+        check_implicit_admin: yes
+        login_user: "{{db_root}}"
+        login_password: "{{db_first_pass}}"
+        state: present
+      when: inventory_hostname == "ubuntu2"
+
+    #SQL CREER BASE DE DONNEES WORDPRESS_DB
+    - name: Créer la base de données "{{db_name}}"
+      mysql_db:
+        name: "{{db_name}}"
+        state: present
+        login_user: "{{db_root}}"
+        login_password: "{{db_root_new_pass}}"
+      when: inventory_hostname == "ubuntu2"
+
+    #SQL CREER UTILISATEUR ANSIBLE
+    - name: Créer l'utilisateur 'ansible' avec les privilèges nécessaires
+      mysql_user:
+        name: ansible
+        password: "{{ ansible_password }}"
+        priv: "{{ database_privileges }}"
+        state: present
+        login_user: "{{db_root}}"
+        login_password: "{{ db_root_new_pass }}"
+      when: inventory_hostname == "ubuntu2"
+
+    #NGINX INSTALL
+    - name: Installer Nginx (Ubuntu)
+      apt:
+        name: nginx
+        state: latest
+        update_cache: true
+      when: inventory_hostname != "ubuntu2"
+
+    #NGINX CONF
+    - name: Copier le fichier de configuration
+      template:
+        src: templates/index.html-logos.j2
+        dest: "{{ nginx_root_location }}/index.html"
+        mode: '0644'
+      when: inventory_hostname != "ubuntu2"
+
+    #NGINX REDEMARRAGE
+    - name: Redemarrer Nginx
+      service:
+        name: nginx
+        state: restarted
+        enabled: true
+      notify: Verification service HTTP
+      when: inventory_hostname != "ubuntu2"

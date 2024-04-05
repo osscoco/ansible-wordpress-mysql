@@ -1,0 +1,21 @@
+---
+# handlers file for install-nginx
+    - name: Verification service HTTP
+      uri:
+        url: http://{{ ansible_default_ipv4.address }}
+        status_code: 200
+
+    - name: Verification service MySql Server
+      service:
+        name: mysql
+        state: started
+
+    - name: Verification service Python3-PyMySQL
+      service:
+        name: python3-pymysql
+        state: started
+    
+    - name: Redémarrer Nginx
+      service:
+        name: nginx
+        state: reloaded

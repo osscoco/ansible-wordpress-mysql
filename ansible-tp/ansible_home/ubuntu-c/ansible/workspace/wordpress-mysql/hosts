@@ -1,0 +1,12 @@
+[control]
+ubuntu-c
+
+[ubuntu]
+ubuntu[1:3]
+
+[wordpress]
+ubuntu1
+ubuntu3
+
+[mysql]
+ubuntu2

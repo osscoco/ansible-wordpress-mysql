@@ -1,0 +1,11 @@
+ansible_become: true
+ansible_become_pass: password
+nginx_root_location: /var/www/html
+
+db_root: root
+db_root_new_pass: "root"
+db_first_pass: ""
+db_name: "wordpress_db"
+
+ansible_password: "not24get"
+database_privileges: "wordpress_db.*:CREATE,SELECT,INSERT,UPDATE,DELETE"

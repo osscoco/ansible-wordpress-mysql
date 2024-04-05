@@ -1,0 +1,10 @@
+---
+# YAML documents begin with the document separator ---
+
+# Le tiret en YAML indique une Liste
+# Un playbook Ansible contient une liste de plays
+- name: WordPress WebSite With Adminer And Nginx
+  hosts: ubuntu
+  roles:
+    - install-nginx
+...
